@@ -8,10 +8,19 @@
         text-align: center;
         vertical-align: middle;
         height: 700px;
+        position: relative;
+    }
+    .router-view-container .body{
+        position: absolute;
+        top: 40px;
+        left: 0;
+        right: 0;
+        bottom: 0;
     }
     .footer{
         width: 100%;
         text-align: center;
+        clear: both;
     }
     .data-source, .data-table{
         height: 200px;
@@ -53,14 +62,28 @@
 
     .leftTable {
         width: 18%;
-        float: left;
-        height: 100%;
         margin-right: 2%;
-        overflow: auto;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
     }
     .leftTable .tableCols {
-        max-height: 100%;
+        top: 20px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
         overflow: auto;
+        position: absolute;
+    }
+    .rightChartPreview{
+        width: 80%;
+        position: absolute;
+        top: 0;
+        left: 20%;
+        right: 0;
+        bottom: 0;
     }
     .rightChartPreview .chartOptions {
         width: 100%;
@@ -68,7 +91,7 @@
         margin-bottom: 10px;
     }
     .rightChartPreview .chartOptions .xAxis {
-        width: 60%;
+        width: 59%;
         float: left;
         height: 100%;
         vertical-align: middle;
@@ -84,27 +107,31 @@
         background-color: white;
         border-radius: 4px;
         padding: 0px 5px;
-        line-height: 40px;
+        line-height: 34px;
         font-size: 18px;
-        height: 40px;
+        height: 34px;
         float: left;
         min-width: 50px;
     }
-    .rightChartPreview{
-        width: 80%;
-        float: left;
-        height: 500px;
-    }
     .rightChartPreview #chart {
         background-color: gray;
+        position: absolute;
+        top: 82px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
     }
     .dragging-item{
         background-color: gray;
+    }
+    .dragging-over-border {
+        border: 2px dashed gray;
     }
     .seperator {
         border: 1px solid #ddd;
         margin: 10px 0px;
     }
+
 </style>
 <script type="text/javascript" src="/static/db2charts/js/vue.js"></script>
 <script type="text/javascript" src="/static/db2charts/js/vue-router.js"></script>
@@ -124,6 +151,7 @@
   <div class="router-view-container">
     <router-view></router-view>
   </div>
+  <div class="seperator"></div>
   <div class="footer">
     <button class="btn btn-primary btn-large" v-show="$route.path!='/1'" @click="onPrevClicked($route.path, $event)">上一步</button>
     <button class="btn btn-primary btn-large" @click="onNextClicked($route.path, $event)">{{$route.path=='/4'?'完成':'下一步'}}</button>
@@ -132,21 +160,21 @@
 
 <template id="s4-template">
 <h3>Here you see step 4: select chart data</h3>
-<div>
+<div class="body">
     <div class="leftTable">
         <div>table:</div>
         <div class="tableCols">
-            <ul class="list-group"> 
-                <li class="list-group-item" v-for="item in translatedCols" :value="$index" draggable="true" @dragstart="onDragStart(item, $event)">{{item.translated_col_name}}</li>
-            </ul>
+            <div class="list-group"> 
+                <span class="list-group-item" v-for="item in translatedCols" :value="$index" draggable="true" @dragstart="onDragStart(item, $event)">{{item.translated_col_name}}</span>
+            </div>
         </div>
     </div>
     <div class="rightChartPreview">
         <div class="chartOptions">
-            <div class="xAxis" @dragover.prevent @drop="onTypePush" @dragleave="onRemoveDragLeave" @dragover="onRemoveDragOver">
+            <div class="xAxis" @drop="onTypePush" @dragleave="onRemoveDragLeave" @dragover.prevent="onRemoveDragOver">
                 <span>分类项:</span>
                 <div>
-                    <span class="group-item" v-for="item in selectedDataSource.chartOptions.selectedTypes" draggable="true" @dragend="onRemoveDragEnd(selectedDataSource.chartOptions.selectedTypes, item, $event)">{{item.translated_col_name}}</span>
+                    <span class="group-item" v-for="item in selectedDataSource.chartOptions.selectedTypes" draggable="true" @dragend="onRemoveDragEnd(selectedDataSource.chartOptions.selectedTypes, item, $event)" @dragover.prevent="onRemoveDragOver">{{item.translated_col_name}}</span>
                 </div>
             </div>
             <div class="yAxis" @dragover.prevent @drop="onDataPush" @dragleave="onRemoveDragLeave" @dragover="onRemoveDragOver">
@@ -157,7 +185,7 @@
             </div>
         </div>
         <div class="seperator"></div>
-        <div id="chart" style="width:100%;height:100%;">
+        <div id="chart">
     </div>
 </div>
 </template>
@@ -324,38 +352,47 @@
                         selectedData: NaN,
                         removeCol: null,
                         willRemove: false,
+                        draggingData: null,
                     }
                 },
                 methods: {
                     onTypePush: function(event){
                         $('.dragging-item').removeClass('dragging-item');
-                        var colData = JSON.parse(event.dataTransfer.getData('item'));
-                        if (this.selectedDataSource.chartOptions.selectedTypes.indexOf(colData) == -1){
+                        $('.dragging-over-border').removeClass('dragging-over-border');
+                        var colData = this.draggingData;
+                        if (colData && this.selectedDataSource.chartOptions.selectedTypes.indexOf(colData) == -1){
                             this.selectedDataSource.chartOptions.selectedTypes.push(colData);
+                            this.renderChart();
                         }
-                        this.renderChart();
+                        this.draggingData = null;
                     },
                     onDataPush: function(event){
                         $('.dragging-item').removeClass('dragging-item');
-                        var colData = JSON.parse(event.dataTransfer.getData('item'));
-                        if (this.selectedDataSource.chartOptions.selectedData.indexOf(colData) == -1){
+                        $('.dragging-over-border').removeClass('dragging-over-border');
+                        var colData = this.draggingData;
+                        if (colData && this.selectedDataSource.chartOptions.selectedData.indexOf(colData) == -1){
                             this.selectedDataSource.chartOptions.selectedData.push(colData);
+                            this.renderChart();
                         }
-                        this.renderChart();
+                        this.draggingData = null;
                     },
                     onRemoveDragLeave: function(event){
                         this.willRemove = true;
+                        $(event.target).removeClass('dragging-over-border');
                     },
                     onRemoveDragOver: function(event){
                         this.willRemove = false;
+                        if ($(event.target).hasClass('group-item')){
+                            $(event.target).parent().parent().addClass('dragging-over-border');
+                        } else {
+                            $(event.target).addClass('dragging-over-border');
+                        }
                     },
                     onDragStart: function(item, event){
                         $(event.srcElement).addClass('dragging-item');
-                        console.log(item);
-                        event.dataTransfer.setData('item', JSON.stringify(item));
+                        this.draggingData = item;
                     },
                     onRemoveDragEnd: function(list, item, event){
-                        console.log(event.dataTransfer.getData('remove'));
                         if (this.willRemove){
                             list.$remove(item);
                             this.renderChart();

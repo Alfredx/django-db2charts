@@ -9,7 +9,6 @@ urlpatterns = [
     url(r'^datatable/$', views.datatable),
     url(r'^api/datatable/data/$', api.datatable_data),
     # url(r'^analysis/report/(?P<report_id>[0-9]+)$', ds_analysis_report),
-    # url(r'^analysis/create/$', ds_analysis_create),
     url(r'^analysis/manage/$', views.analysis_manage),
     url(r'^analysis/create/$', views.analysis_create),
 
