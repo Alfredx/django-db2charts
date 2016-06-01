@@ -264,30 +264,43 @@ moduleRouter = {
 def analysis_model_data(request):
     info = {
         'legend': 'legend',
-        'serie_name': 'NAME',
+        'serie_name': [],
         'data': {
             'xAxis': [],
             'yAxis': [],
         },
+        'count': 0,
     }
-    model_full_name, xAxis, yAxis = get_get_args(request, 'model_name', 'type', 'data')
-    xAxis = xAxis.split('.')[-1]
+    model_full_name, xAxisGroup, yAxisGroup = get_get_args(request, 'model_name', 'type', 'data')
     model_full_name = model_full_name.split('.')
     module = moduleRouter[model_full_name[0]]
     model_name = model_full_name[1]
-    try:
-        model = getattr(module, model_name)
-        allObjects = model.objects.all()
-        result = {}
-        for obj in allObjects:
-            t = getattr(obj, xAxis)
-            if not result.has_key(t):
-                result[t] = getattr(obj, yAxis) if yAxis != 'recordCount' else 1
-            else:
-                result[t] += getattr(obj, yAxis) if yAxis != 'recordCount' else 1
-        for (key, value) in sorted(result.items(), key=lambda x:x[0]):
-            info['data']['xAxis'].append(key)
-            info['data']['yAxis'].append(value)
-    except Exception, e:
-        logger.error(e)
+    xAxisGroup = xAxisGroup.split(',')
+    yAxisGroup = yAxisGroup.split(',')
+    yAxis = yAxisGroup[0]
+    for xAxis in xAxisGroup:
+        dataSet = {
+            'xAxis': [],
+            'yAxis': [],
+        }
+        xAxis = xAxis.split('.')[-1]
+        try:
+            model = getattr(module, model_name)
+            allObjects = model.objects.all()
+            result = {}
+            for obj in allObjects:
+                t = getattr(obj, xAxis)
+                if not result.has_key(t):
+                    result[t] = getattr(obj, yAxis) if yAxis != 'recordCount' else 1
+                else:
+                    result[t] += getattr(obj, yAxis) if yAxis != 'recordCount' else 1
+            for (key, value) in sorted(result.items(), key=lambda x:x[0]):
+                dataSet['xAxis'].append(key)
+                dataSet['yAxis'].append(value)
+        except Exception, e:
+            logger.error(e)
+        info['data']['xAxis'].append(dataSet['xAxis'])
+        info['data']['yAxis'].append(dataSet['yAxis'])
+        info['serie_name'].append(xAxis)
+        info['count'] += 1
     return JsonCusResponse(info, safe=False)

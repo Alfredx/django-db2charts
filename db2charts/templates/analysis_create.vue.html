@@ -399,7 +399,17 @@
                         }
                     },
                     renderChart: function(){
-                        $.get('/db2charts/api/analysis/modeldata/?model_name='+userChartOptions.selectedTable+'&type='+userChartOptions.chartOptions.selectedTypes[0].col_name+'&data='+userChartOptions.chartOptions.selectedData[0].col_name, function(res){
+                        var t = [];
+                        for (var i in userChartOptions.chartOptions.selectedTypes){
+                            t.push(userChartOptions.chartOptions.selectedTypes[i].col_name);
+                        }
+                        t = t.join(',');
+                        var d = [];
+                        for (var i in userChartOptions.chartOptions.selectedData){
+                            d.push(userChartOptions.chartOptions.selectedData[i].col_name);
+                        }
+                        d = d.join(',');
+                        $.get('/db2charts/api/analysis/modeldata/?model_name='+userChartOptions.selectedTable+'&type='+t+'&data='+d, function(res){
                             drawChart({
                                 type: userChartOptions.selectedChart, 
                                 title: res.legend,
