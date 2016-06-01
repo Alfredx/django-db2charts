@@ -1,0 +1,25 @@
+{%extends 'analysis_basic.html'%}
+
+{%block title%}
+<title>创建分析报表</title>
+{%endblock%}
+
+{%block addcss%}
+
+{%endblock%}
+
+{%block maincontent%}
+<script type="text/javascript" src="{{STATIC_URL}}db2charts/js/vue.js"></script>
+{% autoescape off %}
+{{analysis_create_vue_html}}
+{% endautoescape %}
+{%endblock%}
+
+{%block addjs%}
+<script type="text/javascript">
+
+    $(document).ready(function(){
+        
+    });
+</script>
+{%endblock%}

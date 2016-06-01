@@ -1,0 +1,4 @@
+django-debug-toolbar
+mysql-python
+django-tastypie
+# django >= 1.8.8

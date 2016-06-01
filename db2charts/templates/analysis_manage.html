@@ -1,0 +1,59 @@
+{%extends 'analysis_basic.html'%}
+
+{%block title%}
+<title>分析报表管理</title>
+{%endblock%}
+
+{%block addcss%}
+{{block.super}}
+{%endblock%}
+
+{%block maincontent%}
+<div class="modal fade" id="translate_available_modal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">添加描述</h4>
+            </div>
+            <div class="modal-body">
+                <table id="translate_modal_table" class="table">
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" id="translate_use_origin">使用原列名</button>
+                <button class="btn btn-primary" id="translate_submit">确认提交</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div>
+    <table id="available_model_table" class="table table-hover" style="width:100%;">
+        <thead>
+            <th>#</th>
+            <th>model name</th>
+            <th>translated name</th>
+            <th>update</th>
+            <th>active</th>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+<div class="header_separator" style="margin-bottom:10px;margin-top:10px;"></div>
+<div>
+    <table id="all_model_table" class="table table-hover" style="width:100%;">
+        <thead>
+            <th>#</th>
+            <th>model</th>
+            <th>active</th>
+            <th>add</th>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+{%endblock%}
+
+{%block addjs%}
+{{block.super}}
+<script type="text/javascript" src="{{STATIC_URL}}db2charts/js/analysis_manage.js"></script>
+{%endblock%}

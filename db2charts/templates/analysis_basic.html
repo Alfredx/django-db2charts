@@ -1,0 +1,118 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<meta charset="utf-8">
+{%block title%}
+	<title>db2charts</title>
+{%endblock%}
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}db2charts/css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}db2charts/css/bootstrap-theme.min.css">
+<style type="text/css">
+	.header {
+		width: 80%;
+		text-align: right;
+		font-size: 20pt;
+		color: #333;
+		margin: auto;
+	}
+	.header a{
+		color: #333;
+	}
+	.mdiv {
+		margin: auto;
+		margin-top: 20px;
+		width: 80%;
+	}
+	.header_separator {
+		margin-top: 5px;
+		margin-bottom: 10px;
+		max-height: 1px;
+		min-height: 1px;
+		border-width: 1px 0px 1px 0px;
+		border-bottom: 1px #000 solid;
+		width: 100%;
+	}
+	.g-alert{
+		z-index: 9010;
+	}
+</style>
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}db2charts/DataTables/datatables.min.css">
+<style type="text/css">
+    .table-hover > tbody > tr:hover {
+      background-color: #dddddd;
+    }
+</style>
+{%block addcss%}
+
+{%endblock%}
+<script type="text/javascript" src="{{STATIC_URL}}db2charts/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}db2charts/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}db2charts/js/bootbox.min.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}db2charts/DataTables/datatables.min.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}db2charts/js/echarts.min.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}db2charts/js/common.js"></script>
+</head>
+<body>
+<div class="modal fade g-alert" id="AlertModal" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close alert_close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">警告</h4>
+            </div>
+            <div class="modal-body" id="alert_msg">
+            </div>
+           
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-primary alert_close" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<button id="alert_btn" type="button" class="btn btn-info hidden" data-toggle="modal" data-target="#AlertModal">hidden btn</button>
+{%block header%}
+	<div class="container">
+		<div style="font-size:30px;">db2charts</div>
+		<div class="header_separator"></div>
+	</div>
+{%endblock%}
+	<div>
+		<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+	</div>
+{%block totalcontent%}
+	<div class="container">
+{%block maincontent%}
+	
+{%endblock%} {#maincontent#}
+	</div>
+{%endblock%} {#totalcontent#}
+</body>
+<script type="text/javascript">
+	var csrftoken = $('input[name=csrfmiddlewaretoken]').val();
+	$(document).ready(function(){
+		bootbox.setLocale('zh_CN');
+		$('#AlertModal').on('hidden.bs.modal', function(){
+			$('.modal-backdrop').css('z-index', 0);
+		});
+	});
+	$.ajaxSetup({
+	    timeout: 8000,
+	    loadding: true, // 自定义参数（为了针对少数ajax不使用loading画面自定义）
+	    beforeSend: function(xhr) {
+	        xhr.setRequestHeader('Content-Type', 'application/json');
+	        xhr.setRequestHeader('X-CSRFToken', csrftoken);
+	    },
+	    complete: function(xhr){
+	    },
+	    error: function(xhr){
+	        console.log(xhr);
+	    }
+	});
+</script>
+{%block addjs%}
+
+{%endblock%}
+</html>

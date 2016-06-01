@@ -1,0 +1,87 @@
+{%extends 'analysis_basic.html'%}
+
+{%block title%}
+<title>datatable</title>
+{%endblock%}
+
+{%block addcss%}
+
+{%endblock%}
+
+{%block maincontent%}
+<div>
+    <div id="chart" style="width:100%;height:600px;"></div>
+    <table id="mtable" class="table">
+        <thead>
+            <th>id</th>
+            <th>name</th>
+            <th>email</th>
+
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+{%endblock%}
+
+{%block addjs%}
+<script type="text/javascript">
+    $(document).ready(function(){
+        mychart = echarts.init(document.getElementById('chart'));
+        var t = $('#mtable').DataTable({
+            'language': {
+                url: '{{STATIC_URL}}db2charts/locale/zh_CN.json',
+            },
+            'processing': true,
+            'serverSide': true,
+            'ajax': {
+                url: '/db2charts/api/datatable/data/',
+                data: {
+                    model: 'User',
+                    start_time: '2015-1-1 00:00:00',
+                    end_time: '2016-6-16 23:59:59',
+                    timespan: '4.0.0',
+                }
+            },
+            'deferRender': true,
+            'columns': [
+                {'data': 'id',}, 
+                {'data': 'name',}, 
+                {'data': 'email',},
+            ],
+        });
+    }).on('xhr.dt', function(e, settings, json, xhr){
+        console.log('xhr.dt');
+        var chart_data = json.chart;
+
+        var option = {
+            title: {
+                text: '自定义图表'
+            },
+            tooltip: {},
+            toolbox: {
+                show: true,
+                feature: {
+                    magicType: {
+                        show: true,
+                        type: ['line', 'bar', 'stack', 'tiled']
+                    },
+                }
+            },
+            legend: {
+                data:[chart_data.legend]
+            },
+            xAxis: {
+                data: chart_data.data.xAxis,
+            },
+            yAxis: {},
+            series: [{
+                name: chart_data.serie_name,
+                type: 'bar',
+                data: chart_data.data.yAxis
+            }]
+        }
+        mychart.setOption(option);
+    });
+</script>
+{%endblock%}

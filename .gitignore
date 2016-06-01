@@ -1,0 +1,12 @@
+*.DS_STORE
+*.DS_Store
+*.pyc
+*DS_Store
+*.log
+.idea
+*.zip
+*.tar.gz
+*.sqlite3
+migrations/
+db2charts/db_models/models.py
+django_db2charts/settings/local.py
