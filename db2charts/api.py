@@ -277,7 +277,7 @@ def analysis_model_data(request):
     model_name = model_full_name[1]
     xAxisGroup = xAxisGroup.split(',')
     yAxisGroup = yAxisGroup.split(',')
-    yAxis = yAxisGroup[0]
+    yAxis = yAxisGroup[0].split('.')[-1]
     for xAxis in xAxisGroup:
         dataSet = {
             'xAxis': [],
@@ -291,6 +291,7 @@ def analysis_model_data(request):
             for obj in allObjects:
                 t = getattr(obj, xAxis)
                 if not result.has_key(t):
+                    # import pdb;pdb.set_trace();
                     result[t] = getattr(obj, yAxis) if yAxis != 'recordCount' else 1
                 else:
                     result[t] += getattr(obj, yAxis) if yAxis != 'recordCount' else 1

@@ -4,51 +4,7 @@ function initChart(element){
     return thechart;
 }
 
-function drawLineChart(title, name, xAxisValue, yAxisValue){
-    var option = {
-        title: {
-            text: title,
-        },
-        tooltip: {},
-        toolbox: {
-            show: true,
-            feature: {
-                magicType: {
-                    show: true,
-                    type: ['line', 'bar', 'stack', 'tiled']
-                },
-            }
-        },
-        legend: {
-            data:[name]
-        },
-        xAxis: {
-            data: xAxisValue,
-        },
-        yAxis: {},
-        series: [{
-            name: name,
-            type: 'line',
-            data: yAxisValue,
-        }],
-        dataZoom: [{
-                type: 'inside',
-                xAxisIndex:0, 
-                start: 0,
-                end:50,
-            },{
-                type: 'slider',
-                xAxisIndex: 0,
-                start: 0,
-                end: 50,
-            }
-        ]
-    }
-    thechart.clear();
-    thechart.setOption(option)
-}
-
-function drawBarChart(title, name, xAxisValue, yAxisValue){
+function drawLineChart(title, name, xAxisValue, yAxisValue, count){
     var option = {
         title: {
             text: title
@@ -64,30 +20,92 @@ function drawBarChart(title, name, xAxisValue, yAxisValue){
             }
         },
         legend: {
-            data:[name]
+            data: name
         },
-        xAxis: {
-            data: xAxisValue,
-        },
-        yAxis: {},
-        series: [{
-            name: name,
-            type: 'bar',
-            data: yAxisValue
-        }],
-        dataZoom: [{
-                type: 'inside',
-                xAxisIndex:0, 
-                start: 0,
-                end:50,
-            },{
-                type: 'slider',
-                xAxisIndex: 0,
-                start: 0,
-                end: 50,
-            }
-        ]
+        grid: [],
+        xAxis: [],
+        yAxis: [],
+        series: [],
+        dataZoom: [],
     }
+    var h = (85/(count==0?1:count))-5;
+    for (var i = 0; i < count; i++){
+        option.grid.push({x:'5%',y:(i*(h+5)+10)+'%',width:'100%',height:h+'%'});
+        option.xAxis.push({data:xAxisValue[i], gridIndex: i});
+        option.yAxis.push({gridIndex: i});
+        option.series.push({
+            name: name[i],
+            type: 'line',
+            data: yAxisValue[i],
+            xAxisIndex: i,
+            yAxisIndex: i,
+        });
+    }
+    option.dataZoom.push({
+        type: 'inside',
+        xAxisIndex: Array.apply(null, {length:count}).map(Number.call, Number), 
+        start: 0,
+        end:50,
+    });
+    option.dataZoom.push({
+        type: 'slider',
+        xAxisIndex: Array.apply(null, {length:count}).map(Number.call, Number),
+        start: 0,
+        end: 50,
+    });
+    thechart.clear();
+    thechart.setOption(option);
+}
+
+function drawBarChart(title, name, xAxisValue, yAxisValue, count){
+    var option = {
+        title: {
+            text: title
+        },
+        tooltip: {},
+        toolbox: {
+            show: true,
+            feature: {
+                magicType: {
+                    show: true,
+                    type: ['line', 'bar', 'stack', 'tiled']
+                },
+            }
+        },
+        legend: {
+            data: name
+        },
+        grid: [],
+        xAxis: [],
+        yAxis: [],
+        series: [],
+        dataZoom: [],
+    }
+    var h = (85/(count==0?1:count))-5;
+    for (var i = 0; i < count; i++){
+        option.grid.push({x:'5%',y:(i*(h+5)+10)+'%',width:'100%',height:h+'%'});
+        option.xAxis.push({data:xAxisValue[i], gridIndex: i});
+        option.yAxis.push({gridIndex: i});
+        option.series.push({
+            name: name[i],
+            type: 'bar',
+            data: yAxisValue[i],
+            xAxisIndex: i,
+            yAxisIndex: i,
+        });
+    }
+    option.dataZoom.push({
+        type: 'inside',
+        xAxisIndex: Array.apply(null, {length:count}).map(Number.call, Number), 
+        start: 0,
+        end:50,
+    });
+    option.dataZoom.push({
+        type: 'slider',
+        xAxisIndex: Array.apply(null, {length:count}).map(Number.call, Number),
+        start: 0,
+        end: 50,
+    });
     thechart.clear();
     thechart.setOption(option);
 }
@@ -184,5 +202,5 @@ var typeRouter = {
 
 function drawChart(option){
     var drawFunc = typeRouter[option['type']];
-    drawFunc(option['title'], option['name'], option['xAxis'], option['yAxis']);
+    drawFunc(option['title'], option['name'], option['xAxis'], option['yAxis'], option['count']);
 }
