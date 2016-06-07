@@ -3,6 +3,7 @@
 *.pyc
 *DS_Store
 *.log
+*.log.*
 .idea
 *.zip
 *.tar.gz
@@ -10,3 +11,4 @@
 migrations/
 db2charts/db_models/*models.py
 django_db2charts/settings/local.py
+db2charts_models/
