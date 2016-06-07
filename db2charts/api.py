@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 # author: Alfred
 
-from db2charts.db_models import models as analysis_models
 from db2charts.models import *
+from db2charts import settings
 from db2charts.utils.basic import *
 from db2charts.utils.datatables import makeDataTable
+from db2charts.settings import analysis_db_modules
 from django.db import models
 from django.http import JsonResponse
 from django.utils import timezone
@@ -13,6 +14,13 @@ import logging
 import sys
 logger = logging.getLogger(__name__)
 DEFAULT_TIME_SPAN_COUNTS = 12
+
+
+# from db2charts_models import models as analysis_models
+
+# moduleRouter = {
+#     analysis_models.__package__.split('.')[-1]: analysis_models,
+# }
 
 
 def calculate_timespan(start_time, end_time, timespan=None):
@@ -125,18 +133,11 @@ def datatable_data(request):
 
 import sys
 import json
-
-
-def analysis_model_available(request):
-    availableModels = AvailableAnalysisModel.objects.all()
-    info = {'data': [{'model_name': x.model_name, 'translated_name': x.translated_name,
-                      'active': x.active, 'cols': json.loads(x.translated_cols)} for x in availableModels]}
-    return JsonResponse(info, safe=False)
-
-
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
 from tastypie.serializers import Serializer
+
+from db2charts.analysis.manage import AnalysisManage
 
 
 class JsonCusResponse(HttpResponse):
@@ -155,19 +156,18 @@ class JsonCusResponse(HttpResponse):
         super(JsonCusResponse, self).__init__(content=data, **kwargs)
 
 
+def analysis_model_available(request):
+    info = {
+        'data':AnalysisManage().get_availables()
+    }
+    return JsonResponse(info, safe=False)
+
+
+
 def analysis_model_all(request):
     info = {
-        'data': []
+        'data': AnalysisManage().get_candidates()
     }
-    availableModels = AvailableAnalysisModel.objects.filter(active=True)
-    availableModels = [m.model_name for m in availableModels]
-    for name in dir(analysis_models):
-        try:
-            if issubclass(getattr(analysis_models, name), models.Model):
-                info['data'].append({'model_name': 'db_models.%s' % name, 'active': True if 'db_models.%s' % name in availableModels else False, 'cols': [
-                                    x for x in getattr(analysis_models, name)._meta.concrete_fields]})
-        except:
-            pass
     return JsonCusResponse(info, safe=False)
 
 
@@ -176,15 +176,10 @@ def analysis_manage_submit(request):
         'status': 0,
         'message': 'success',
     }
-    model_full_name, translated_model_name, cols = get_post_args(
+    model_name, translated_model_name, cols = get_post_args(
         request, 'model_name', 'translated_model_name', 'cols')
     try:
-        aam = AvailableAnalysisModel()
-        aam.model_name = model_full_name
-        aam.translated_name = translated_model_name
-        aam.active = True
-        aam.translated_cols = json.dumps(cols)
-        aam.save()
+        AnalysisManage().add_available(model_name, translated_model_name, cols)
     except Exception, e:
         info['status'] = 1
         info['message'] = 'invalid params ' + e.message
@@ -196,15 +191,10 @@ def analysis_manage_update(request):
         'status': 0,
         'message': 'success',
     }
-    model_full_name, translated_model_name, cols = get_post_args(
+    model_name, translated_model_name, cols = get_post_args(
         request, 'model_name', 'translated_model_name', 'cols')
     try:
-        aam = AvailableAnalysisModel.objects.filter(
-            model_name=model_full_name).first()
-        if aam:
-            aam.translated_name = translated_model_name
-            aam.translated_cols = json.dumps(cols)
-            aam.save()
+        AnalysisManage().update_available(model_name, translated_model_name, cols)
     except Exception, e:
         info['status'] = 1
         info['message'] = 'invalid params ' + e.message
@@ -216,12 +206,9 @@ def analysis_manage_delete(request):
         'status': 0,
         'message': 'success',
     }
-    model_full_name, = get_post_args(request, 'model_name')
+    model_name, = get_post_args(request, 'model_name')
     try:
-        aam = AvailableAnalysisModel.objects.filter(
-            model_name=model_full_name).first()
-        if aam:
-            aam.delete()
+        AnalysisManage().delete_available(model_name)
     except Exception, e:
         info['status'] = 1
         info['message'] = 'invalid model_name ' + e.message
@@ -233,13 +220,9 @@ def analysis_manage_active(request):
         'status': 0,
         'message': 'success',
     }
-    model_full_name, active = get_post_args(request, 'model_name', 'active')
+    model_name, active = get_post_args(request, 'model_name', 'active')
     try:
-        aam = AvailableAnalysisModel.objects.filter(
-            model_name=model_full_name).first()
-        if aam:
-            aam.active = bool(active)
-            aam.save()
+        AnalysisManage().set_active(model_name, bool(active))
     except Exception, e:
         info['status'] = 1
         info['message'] = 'invalid model_name ' + e.message
@@ -254,11 +237,6 @@ def analysis_create_tablecols(request):
         info['data'] = json.loads(aam.translated_cols)
         info['data'].insert(0, {'col_name':'recordCount','translated_col_name':'记录数'})
     return JsonCusResponse(info, safe=False)
-
-
-moduleRouter = {
-    analysis_models.__package__.split('.')[-1]: analysis_models,
-}
 
 
 def analysis_model_data(request):

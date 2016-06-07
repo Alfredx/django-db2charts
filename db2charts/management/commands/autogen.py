@@ -133,6 +133,11 @@ class inspectdb(inspectdbCommand):
                 for meta_line in self.get_meta(table_name, constraints, column_to_field_name):
                     yield meta_line
 
+    def get_meta(self, table_name, constraints, column_to_field_name):
+        meta = super(inspectdb, self).get_meta(table_name, constraints, column_to_field_name)
+        meta += ["        app_label = 'db2charts'"]
+        return meta
+
 class Command(BaseCommand):
     def handle(self, **options):
         settings.DATABASES.update(settings.DB2CHARTS_DB)
@@ -146,6 +151,11 @@ class Command(BaseCommand):
             raise e
         for (key, value) in settings.DB2CHARTS_DB.items():
             with open('./db2charts_models/%s_models.py'%key, 'w') as f:
-                inspectdb().execute(database=key, stdout=f)
+                inspectdb().execute(database=key, stdout=f, table_name_filter=self.table_filter)
                 f.flush()
             
+    def table_filter(self, table_name):
+        table_name = table_name.lower()
+        if 'django_migrations' == table_name:
+            return False
+        return True

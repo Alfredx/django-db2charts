@@ -4,6 +4,11 @@
 from django.db import models
 import django
 
+__all__ = [
+    "BaseStatisticsColumn",
+    "AvailableAnalysisModel",
+    "AnalysisReport",
+]
 
 class BaseStatisticsColumn(models.Model):
     create_date = models.DateTimeField(default=django.utils.timezone.now)
