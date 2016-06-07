@@ -3,7 +3,6 @@
 
 default_label = ['auth', 'sessions', 'admin', 'contenttypes', 'staticfiles', 'messages',
                      'db2charts']
-analysis_db_label = ['db_models',]
 
 
 class Router(object):
@@ -15,8 +14,6 @@ class Router(object):
     def db_for_app(self, app_label):
         if app_label in default_label:
             return 'default'
-        if app_label in analysis_db_label:
-            return 'analysis_db'
         return None
 
     def db_for_read(self, model, **hints):

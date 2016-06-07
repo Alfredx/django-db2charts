@@ -38,7 +38,6 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'db2charts',
-    'db2charts.db_models',
     'debug_toolbar',
 )
 
@@ -157,8 +156,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATICFILES_DIRS = (
     ("db2charts", BASE_DIR + '/db2charts/static/'),
 )
-
-DATABASE_ROUTERS = ['django_db2charts.dbRouter.Router', ]
 
 DEBUG_TOOLBAR_CONFIG = {
     'JQUERY_URL': '/static/db2charts/js/jquery-1.9.1.min.js',

@@ -9,6 +9,4 @@
 *.tar.gz
 *.sqlite3
 migrations/
-db2charts/db_models/*models.py
-django_db2charts/settings/local.py
 db2charts_models/
