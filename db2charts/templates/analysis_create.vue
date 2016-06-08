@@ -224,17 +224,17 @@
 
     var s1 = function(resolve){
         resolve(loadingComponentDefinition);
-        $.get('/db2charts/api/analysis/manage/available/', function(res){
+        $.get('/db2charts/api/analysis/create/db/', function(res){
             resolve({
                 template: '<h3>Here you see step 1: select data source</h3>\
                             <div>\
-                                <div v-for="item in availableTables" class="col-xs-12 col-sm-6 col-md-4 col-lg-4 data-source" @click="onDataSourceClicked(item.model_name, $event)">\
-                                    <div :class="selected(item.model_name)"><p>{{item.model_name}}</p></div>\
+                                <div v-for="db in availableDBs" class="col-xs-12 col-sm-6 col-md-4 col-lg-4 data-source" @click="onDataSourceClicked(db, $event)">\
+                                    <div :class="selected(db)"><p>{{db}}</p></div>\
                                 </div>\
                             </div>',
                 data: function(){
                     return {
-                        availableTables: res.data,
+                        availableDBs: res,
                         selectedDataSource: userChartOptions,
                     }
                 },
@@ -243,8 +243,8 @@
                         this.selectedDataSource.selectedDB = dataSource;
                         console.log(userChartOptions.selectedDB);
                     },
-                    selected: function(model_name){
-                        if (this.selectedDataSource.selectedDB == model_name){
+                    selected: function(db){
+                        if (this.selectedDataSource.selectedDB == db){
                             return 'selected-data-source';
                         } else {
                             return '';
@@ -260,7 +260,7 @@
 
     var s2 = function(resolve){
         resolve(loadingComponentDefinition);
-        $.get('/db2charts/api/analysis/manage/available/', function(res){
+        $.get('/db2charts/api/analysis/create/table/?db='+userChartOptions.selectedDB, function(res){
             resolve({
                 template: '<h3>Here you see step 2: select table</h3>\
                             <div>\
@@ -270,7 +270,7 @@
                             </div>',
                 data: function(){
                     return {
-                        availableTables: res.data,
+                        availableTables: res,
                         selectedDataSource: userChartOptions,
                     }
                 },
@@ -291,6 +291,9 @@
                     if (!this.selectedDataSource.selectedDB){
                         router.go('/1');
                     }
+                    $.get('/db2charts/api/analysis/create/table/?db='+userChartOptions.selectedDB, (function(res){
+                        this.availableTables = res;
+                    }).bind(this));
                     console.log('s2 ready');
                 }
             });
@@ -409,7 +412,7 @@
                             d.push(userChartOptions.chartOptions.selectedData[i].col_name);
                         }
                         d = d.join(',');
-                        $.get('/db2charts/api/analysis/modeldata/?model_name='+userChartOptions.selectedTable+'&type='+t+'&data='+d, function(res){
+                        $.get('/db2charts/api/analysis/create/preview/?model_name='+userChartOptions.selectedTable+'&xAxis='+t+'&yAxis='+d, function(res){
                             drawChart({
                                 type: userChartOptions.selectedChart, 
                                 title: res.legend,
@@ -422,21 +425,20 @@
                     }
                 },
                 ready: function(){
-                    // if (!this.selectedDataSource.selectedDB){
-                    //     router.go('/1');
-                    // } else if (!this.selectedDataSource.selectedTable) {
-                    //     router.go('/2');
-                    // } else if (!this.selectedDataSource.selectedChart) {
-                    //     router.go('/3');
-                    // } else {
+                    if (!this.selectedDataSource.selectedDB){
+                        router.go('/1');
+                    } else if (!this.selectedDataSource.selectedTable) {
+                        router.go('/2');
+                    } else if (!this.selectedDataSource.selectedChart) {
+                        router.go('/3');
+                    } else {
                         console.log('s4 ready');
                         chartView = initChart(document.getElementById('chart'));
                         $.get('/db2charts/api/analysis/create/tablecols/?model_name='+userChartOptions.selectedTable, (function(res){
-                        // $.get('/db2charts/api/analysis/create/tablecols/?model_name=Api.DerivativeDone', (function(res){
                             this.translatedCols = res.data;
                             this.renderChart();
                         }).bind(this));
-                    // }
+                    }
                 }
             });
         });
@@ -464,6 +466,15 @@
                         console.log(userChartOptions.selectedTable);
                         console.log(userChartOptions.selectedChart);
                         console.log(userChartOptions.chartOptions);
+                        $.ajax({
+                            url: '/db2charts/api/analysis/create/submit/',
+                            type: 'POST',
+                            dataType: 'json',
+                            data: JSON.stringify({'options':userChartOptions}),
+                            success: function(res){
+                                console.log(res);
+                            }
+                        })
                         break;
                 }
             },

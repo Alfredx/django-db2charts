@@ -4,9 +4,9 @@
 from db2charts.settings import analysis_db_modules
 from django.db import models as django_models
 
-class AnalysisModules(object):
+class AnalysisBase(object):
     def __init__(self):
-        super(AnalysisModules, self).__init__()
+        super(AnalysisBase, self).__init__()
         self.modules = analysis_db_modules
 
     def get_dbs(self):

@@ -18,6 +18,7 @@ class BaseStatisticsColumn(models.Model):
 
 
 class AvailableAnalysisModel(BaseStatisticsColumn):
+    db_name = models.CharField(max_length=128, default="")
     model_name = models.CharField(max_length=128, default="")
     translated_name = models.CharField(max_length=128, default="")
     active = models.BooleanField(default=True)

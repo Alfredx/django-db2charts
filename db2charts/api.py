@@ -5,7 +5,6 @@ from db2charts.models import *
 from db2charts import settings
 from db2charts.utils.basic import *
 from db2charts.utils.datatables import makeDataTable
-from db2charts.settings import analysis_db_modules
 from django.db import models
 from django.http import JsonResponse
 from django.utils import timezone
@@ -137,7 +136,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
 from tastypie.serializers import Serializer
 
-from db2charts.analysis.manage import AnalysisManage
+from db2charts.analysis import AnalysisManage, AnalysisCreate
 
 
 class JsonCusResponse(HttpResponse):
@@ -229,57 +228,36 @@ def analysis_manage_active(request):
     return JsonResponse(info)
 
 
+def analysis_create_dbs(request):
+    return JsonResponse(AnalysisCreate().get_dbs(), safe=False)
+
+def analysis_create_tables(request):
+    db, = get_get_args(request, 'db')
+    return JsonResponse(AnalysisCreate().get_available_tables(db), safe=False)
+
 def analysis_create_tablecols(request):
-    info = {}
-    model_full_name, = get_get_args(request, 'model_name')
-    aam = AvailableAnalysisModel.objects.filter(model_name=model_full_name, active=True).first()
-    if aam:
-        info['data'] = json.loads(aam.translated_cols)
-        info['data'].insert(0, {'col_name':'recordCount','translated_col_name':'记录数'})
-    return JsonCusResponse(info, safe=False)
-
-
-def analysis_model_data(request):
+    model_name, = get_get_args(request, 'model_name')
     info = {
-        'legend': 'legend',
-        'serie_name': [],
-        'data': {
-            'xAxis': [],
-            'yAxis': [],
-        },
-        'count': 0,
+        'data': AnalysisCreate().get_translated_cols(model_name)
     }
-    model_full_name, xAxisGroup, yAxisGroup = get_get_args(request, 'model_name', 'type', 'data')
-    model_full_name = model_full_name.split('.')
-    module = moduleRouter[model_full_name[0]]
-    model_name = model_full_name[1]
-    xAxisGroup = xAxisGroup.split(',')
-    yAxisGroup = yAxisGroup.split(',')
-    yAxis = yAxisGroup[0].split('.')[-1]
-    for xAxis in xAxisGroup:
-        dataSet = {
-            'xAxis': [],
-            'yAxis': [],
-        }
-        xAxis = xAxis.split('.')[-1]
-        try:
-            model = getattr(module, model_name)
-            allObjects = model.objects.all()
-            result = {}
-            for obj in allObjects:
-                t = getattr(obj, xAxis)
-                if not result.has_key(t):
-                    # import pdb;pdb.set_trace();
-                    result[t] = getattr(obj, yAxis) if yAxis != 'recordCount' else 1
-                else:
-                    result[t] += getattr(obj, yAxis) if yAxis != 'recordCount' else 1
-            for (key, value) in sorted(result.items(), key=lambda x:x[0]):
-                dataSet['xAxis'].append(key)
-                dataSet['yAxis'].append(value)
-        except Exception, e:
-            logger.error(e)
-        info['data']['xAxis'].append(dataSet['xAxis'])
-        info['data']['yAxis'].append(dataSet['yAxis'])
-        info['serie_name'].append(xAxis)
-        info['count'] += 1
     return JsonCusResponse(info, safe=False)
+
+
+def analysis_create_preview(request):
+    model_full_name, xAxis_group, yAxis_group = get_get_args(request, 'model_name', 'xAxis', 'yAxis')
+    if not model_full_name or not xAxis_group or not yAxis_group:
+        return JsonCusResponse({}, safe=False)
+    model_full_name = model_full_name.split('.')
+    db_name = model_full_name[0]
+    model_name = model_full_name[1]
+    xAxis_group = xAxis_group.split(',')
+    yAxis_group = yAxis_group.split(',')
+    yAxis = yAxis_group[0].split('.')[-1]
+    info = AnalysisCreate().fetch_preview_data(db_name, model_name, xAxis_group, yAxis)
+    return JsonCusResponse(info, safe=False)
+
+
+def analysis_create_submit(request):
+    chartOptions, = get_post_args(request, 'options')
+    AnalysisCreate().save_report(chartOptions)
+    return JsonCusResponse({'result':'success'}, safe=False)

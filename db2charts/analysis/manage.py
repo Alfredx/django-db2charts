@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 # author: Alfred
 
-from db2charts.analysis.base import AnalysisModules
-from db2charts.models import *
+from db2charts.analysis.base import AnalysisBase
+from db2charts.models import AvailableAnalysisModel
 import json
 
-class AnalysisManage(AnalysisModules):
+class AnalysisManage(AnalysisBase):
 
     def __init__(self):
         super(AnalysisManage, self).__init__()
@@ -32,6 +32,7 @@ class AnalysisManage(AnalysisModules):
 
     def add_available(self, model_name, translated_model_name, cols):
         aam = AvailableAnalysisModel()
+        aam.db_name = model_name.split('.')[0]
         aam.model_name = model_name
         aam.translated_name = translated_model_name
         aam.active = True

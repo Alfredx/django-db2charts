@@ -18,8 +18,11 @@ def analysis_manage(request):
 
 def analysis_create(request):
 	ctx = get_basic_ctx(request)
-	f = open('db2charts/templates/analysis_create.vue.html')
+	f = open('db2charts/templates/analysis_create.vue')
 	ctx['analysis_create_vue_html'] = f.read()
 	f.close()
 	return render_to_response('analysis_create.html', RequestContext(request, ctx))
 
+def analysis_report(request):
+    ctx = get_basic_ctx(request)
+    return render_to_response('analysis_report.html', RequestContext(request, ctx))

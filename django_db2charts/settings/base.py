@@ -160,3 +160,15 @@ STATICFILES_DIRS = (
 DEBUG_TOOLBAR_CONFIG = {
     'JQUERY_URL': '/static/db2charts/js/jquery-1.9.1.min.js',
 }
+
+# Database
+# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db2charts.sqlite3'),
+    },
+}
+
+DATABASE_ROUTERS = ['django_db2charts.dbRouter.Router',]

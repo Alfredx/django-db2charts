@@ -1,10 +1,22 @@
 from django.conf import settings
 import sys
 
-if hasattr(settings, 'DB2CHARTS_DB'):
-    settings.DATABASES.update(settings.DB2CHARTS_DB)
-else:
-    settings.DB2CHARTS_DB = {}
+DB2CHARTS_DB = {}
+DB2CHARTS_ROUTER = 'db2charts.router.DB2ChartsRouter'
+
+if not 'makemigrations' in sys.argv:
+    if hasattr(settings, 'DB2CHARTS_DB'):
+        settings.DATABASES.update(settings.DB2CHARTS_DB)
+    else:
+        settings.DB2CHARTS_DB = DB2CHARTS_DB
+
+if hasattr(settings, 'DB2CHARTS_ROUTER'):
+    DB2CHARTS_ROUTER = settings.DB2CHARTS_ROUTER
+if hasattr(settings, 'DATABASE_ROUTERS'):
+    if not DB2CHARTS_ROUTER in settings.DATABASE_ROUTERS:
+        settings.DATABASE_ROUTERS.insert(0, DB2CHARTS_ROUTER)
+    else:
+        settings.DATABASE_ROUTERS = [DB2CHARTS_ROUTER,]
 
 analysis_db_modules = {}
 if not 'autogen' in sys.argv:

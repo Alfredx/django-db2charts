@@ -11,6 +11,7 @@ urlpatterns = [
     # url(r'^analysis/report/(?P<report_id>[0-9]+)$', ds_analysis_report),
     url(r'^analysis/manage/$', views.analysis_manage),
     url(r'^analysis/create/$', views.analysis_create),
+    url(r'^analysis/report/$', views.analysis_report),
 
     url(r'^api/analysis/manage/available/$', api.analysis_model_available),
     url(r'^api/analysis/manage/all/$', api.analysis_model_all),
@@ -19,5 +20,8 @@ urlpatterns = [
     url(r'^api/analysis/manage/delete/$', api.analysis_manage_delete),
     url(r'^api/analysis/manage/active/$', api.analysis_manage_active),
     url(r'^api/analysis/create/tablecols/$', api.analysis_create_tablecols),
-    url(r'^api/analysis/modeldata/$', api.analysis_model_data),
+    url(r'^api/analysis/create/db/$', api.analysis_create_dbs),
+    url(r'^api/analysis/create/table/$', api.analysis_create_tables),
+    url(r'^api/analysis/create/preview/$', api.analysis_create_preview),
+    url(r'^api/analysis/create/submit/$', api.analysis_create_submit),
 ]
