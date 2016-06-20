@@ -3,6 +3,7 @@
 
 from django.db import models
 import django
+import json
 
 __all__ = [
     "BaseStatisticsColumn",
@@ -22,7 +23,16 @@ class AvailableAnalysisModel(BaseStatisticsColumn):
     model_name = models.CharField(max_length=128, default="")
     translated_name = models.CharField(max_length=128, default="")
     active = models.BooleanField(default=True)
-    translated_cols = models.TextField(default="")
+    _translated_cols = models.TextField(default="")
+
+    @property
+    def translated_cols(self):
+        return json.loads(self._translated_cols)
+
+    @translated_cols.setter
+    def translated_cols(self, cols):
+        self._translated_cols = jsom.dumps(cols)
+    
 
 
 class AnalysisReport(BaseStatisticsColumn):
@@ -32,4 +42,14 @@ class AnalysisReport(BaseStatisticsColumn):
     report_name = models.CharField(max_length=128, default="自定义报表")
     open_state = models.IntegerField(choices=open_state_choice, default=0)
     creator_name = models.CharField(max_length=128, default="")
+
+    @property
+    def options(self):
+        return json.loads(self.conditions)
+
+    @options.setter
+    def options(self, options):
+        self.conditions = json.dumps(options)
+    
+    
     

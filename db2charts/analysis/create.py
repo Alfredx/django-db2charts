@@ -25,7 +25,7 @@ class AnalysisCreate(AnalysisBase):
             'translated_col_name': self.record_count_translated_name
         }]
         if aam:
-            cols += json.loads(aam.translated_cols)
+            cols += aam.translated_cols
         return cols
 
     def fetch_preview_data(self, db_name, model_name, xAxis_group, yAxis):
@@ -70,6 +70,6 @@ class AnalysisCreate(AnalysisBase):
     def save_report(self, options):
         report = AnalysisReport()
         report.related_models = options['selectedTable']
-        report.conditions = json.dumps(options)
+        report.options = options
         report.save()
         return True

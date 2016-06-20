@@ -16,7 +16,7 @@ class AnalysisManage(AnalysisBase):
             'model_name': x.model_name,
             'translated_name': x.translated_name,
             'active': x.active,
-            'cols': json.loads(x.translated_cols)
+            'cols': x.translated_cols
         } for x in availableModels]
         return models
 
@@ -36,13 +36,13 @@ class AnalysisManage(AnalysisBase):
         aam.model_name = model_name
         aam.translated_name = translated_model_name
         aam.active = True
-        aam.translated_cols = json.dumps(cols)
+        aam.translated_cols = cols
         aam.save()
 
     def update_available(self, model_name, translated_model_name, cols):
         aam = AvailableAnalysisModel.objects.get(model_name=model_name)
         aam.translated_name = translated_model_name
-        aam.translated_cols = json.dumps(cols)
+        aam.translated_cols = cols
         aam.save()
 
     def delete_available(self, model_name):

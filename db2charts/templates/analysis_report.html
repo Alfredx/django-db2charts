@@ -1,0 +1,17 @@
+{%extends 'analysis_basic.html'%}
+
+{% block title %}
+<title>报表</title>
+{% endblock %}
+
+{% block addcss %}
+{% endblock %}
+
+{% block maincontent %}
+{% autoescape off %}
+{{analysis_report_vue_html}}
+{% endautoescape %}
+{% endblock %}
+
+{% block addjs %}
+{% endblock %}

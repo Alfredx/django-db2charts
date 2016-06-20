@@ -1,4 +1,6 @@
 <style type="text/css">
+    
+    
     .v-link-active {
         color: red;
         text-decoration: none;
@@ -78,7 +80,7 @@
         position: absolute;
     }
     .rightChartPreview{
-        width: 80%;
+        width: 77%;
         position: absolute;
         top: 0;
         left: 20%;
@@ -158,7 +160,7 @@
   </div>
 </div>
 
-<template id="s4-template">
+<template id="pageChartOptions-template">
 <h3>Here you see step 4: select chart data</h3>
 <div class="body">
     <div class="leftTable">
@@ -222,7 +224,12 @@
     // keep it simple for now.
     var router = new VueRouter();
 
-    var s1 = function(resolve){
+    var pageEnterName = Vue.extend({
+        template: '<h3>The first step: Give your report a name</h3>\
+                   <div class=></div>'
+    })
+
+    var pageSelectDB = function(resolve){
         resolve(loadingComponentDefinition);
         $.get('/db2charts/api/analysis/create/db/', function(res){
             resolve({
@@ -252,13 +259,13 @@
                     }
                 },
                 ready: function(){
-                    console.log('s1 ready');
+                    console.log('pageSelectDB ready');
                 }
             });
         });
     }
 
-    var s2 = function(resolve){
+    var pageSelectTable = function(resolve){
         resolve(loadingComponentDefinition);
         $.get('/db2charts/api/analysis/create/table/?db='+userChartOptions.selectedDB, function(res){
             resolve({
@@ -294,13 +301,13 @@
                     $.get('/db2charts/api/analysis/create/table/?db='+userChartOptions.selectedDB, (function(res){
                         this.availableTables = res;
                     }).bind(this));
-                    console.log('s2 ready');
+                    console.log('pageSelectTable ready');
                 }
             });
         });
     }
 
-    var s3 = Vue.extend({
+    var pageSelectChart = Vue.extend({
         template: '<h3>Here you see step 3: select chart type</h3>\
                     <div v-for="item in supportedCharts">\
                         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 data-chart" @click="onChartClicked(item.name, $event)">\
@@ -337,15 +344,15 @@
             } else if (!this.selectedDataSource.selectedTable) {
                 router.go('/2');
             }
-            console.log('s3 ready');
+            console.log('pageSelectChart ready');
         }
     })
 
-    var s4 = function(resolve){
+    var pageChartOptions = function(resolve){
         resolve(loadingComponentDefinition);
         $.get('/db2charts/api/analysis/create/tablecols/?model_name='+userChartOptions.selectedTable, function(res){
             resolve({
-                template: '#s4-template',
+                template: '#pageChartOptions-template',
                 data: function() {
                     return {
                         translatedCols: res.data?res.data:[],
@@ -432,7 +439,7 @@
                     } else if (!this.selectedDataSource.selectedChart) {
                         router.go('/3');
                     } else {
-                        console.log('s4 ready');
+                        console.log('pageChartOptions ready');
                         chartView = initChart(document.getElementById('chart'));
                         $.get('/db2charts/api/analysis/create/tablecols/?model_name='+userChartOptions.selectedTable, (function(res){
                             this.translatedCols = res.data;
@@ -508,16 +515,16 @@
             }
         },
         '/1': {
-            component: s1
+            component: pageSelectDB
         },
         '/2': {
-            component: s2
+            component: pageSelectTable
         },
         '/3': {
-            component: s3
+            component: pageSelectChart
         },
         '/4': {
-            component: s4
+            component: pageChartOptions
         }
     })
 

@@ -11,7 +11,7 @@
 {%block maincontent%}
 <div>
     <div id="chart" style="width:100%;height:600px;"></div>
-    <table id="mtable" class="table">
+    <table id="mtable" class="table" style="background-color:white;">
         <thead>
             <th>id</th>
             <th>name</th>
@@ -37,7 +37,7 @@
             'ajax': {
                 url: '/db2charts/api/datatable/data/',
                 data: {
-                    model: 'User',
+                    model: 'ApiExhibitdone',
                     start_time: '2015-1-1 00:00:00',
                     end_time: '2016-6-16 23:59:59',
                     timespan: '4.0.0',
@@ -47,11 +47,16 @@
             'columns': [
                 {'data': 'id',}, 
                 {'data': 'name',}, 
-                {'data': 'email',},
+                {'data': 'stand_price',},
+
             ],
+            'scrollY': '200px',
+            'scrollCollapse': true,
+            fixedColumns: {
+                leftColumns: 1
+            }
         });
     }).on('xhr.dt', function(e, settings, json, xhr){
-        console.log('xhr.dt');
         var chart_data = json.chart;
 
         var option = {

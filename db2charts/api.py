@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
 # author: Alfred
 
-from db2charts.models import *
 from db2charts import settings
+from db2charts.analysis import AnalysisManage, AnalysisCreate
+from db2charts.models import *
 from db2charts.utils.basic import *
 from db2charts.utils.datatables import makeDataTable
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
+from tastypie.serializers import Serializer
 import datetime
+import json
 import logging
 import sys
 logger = logging.getLogger(__name__)
+
 DEFAULT_TIME_SPAN_COUNTS = 12
-
-
-# from db2charts_models import models as analysis_models
-
-# moduleRouter = {
-#     analysis_models.__package__.split('.')[-1]: analysis_models,
-# }
 
 
 def calculate_timespan(start_time, end_time, timespan=None):
@@ -109,7 +107,7 @@ def datatable_data(request):
 
     start_time, end_time, timespan, model = get_get_args(
         request, 'start_time', 'end_time', 'timespan', 'model')
-    model = getattr(analysis_models, model)
+    model = getattr(AnalysisManage().modules['analysis_db_artenterdefault'], model)
     recordsTotal = model.objects.all().count()
     objects = None
     if search:
@@ -129,14 +127,6 @@ def datatable_data(request):
         }
     }
     return JsonResponse(info, safe=False)
-
-import sys
-import json
-from django.core.serializers.json import DjangoJSONEncoder
-from django.http import HttpResponse
-from tastypie.serializers import Serializer
-
-from db2charts.analysis import AnalysisManage, AnalysisCreate
 
 
 class JsonCusResponse(HttpResponse):
