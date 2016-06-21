@@ -8,7 +8,7 @@ import json
 __all__ = [
     "BaseStatisticsColumn",
     "AvailableAnalysisModel",
-    "AnalysisReport",
+    "AnalysisReportData",
 ]
 
 class BaseStatisticsColumn(models.Model):
@@ -35,7 +35,7 @@ class AvailableAnalysisModel(BaseStatisticsColumn):
     
 
 
-class AnalysisReport(BaseStatisticsColumn):
+class AnalysisReportData(BaseStatisticsColumn):
     open_state_choice = ((0, 'private'), (1, 'public'))
     related_models = models.TextField(default="")
     conditions = models.TextField(default="")

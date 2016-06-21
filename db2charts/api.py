@@ -2,7 +2,7 @@
 # author: Alfred
 
 from db2charts import settings
-from db2charts.analysis import AnalysisManage, AnalysisCreate
+from db2charts.analysis import AnalysisManage, AnalysisCreate, AnalysisReport
 from db2charts.models import *
 from db2charts.utils.basic import *
 from db2charts.utils.datatables import makeDataTable
@@ -251,3 +251,8 @@ def analysis_create_submit(request):
     chartOptions, = get_post_args(request, 'options')
     AnalysisCreate().save_report(chartOptions)
     return JsonCusResponse({'result':'success'}, safe=False)
+
+
+def analysis_report(request):
+    report_id, = get_get_args(request, 'report_id')
+    return JsonCusResponse(AnalysisReport(report_id).get_report_data(), safe=False)

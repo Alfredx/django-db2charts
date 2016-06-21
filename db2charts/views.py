@@ -5,7 +5,6 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from db2charts.utils import *
 
-
 def datatable(request):
     ctx = get_basic_ctx(request)
     return render_to_response('datatable.html', RequestContext(request, ctx))
@@ -23,7 +22,7 @@ def analysis_create(request):
 	f.close()
 	return render_to_response('analysis_create.html', RequestContext(request, ctx))
 
-def analysis_report(request):
+def analysis_report(request, report_id):
     ctx = get_basic_ctx(request)
     f = open('db2charts/templates/analysis_report.vue')
     ctx['analysis_report_vue_html'] = f.read()

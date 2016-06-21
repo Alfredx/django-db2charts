@@ -68,8 +68,17 @@ class AnalysisCreate(AnalysisBase):
         return result
 
     def save_report(self, options):
-        report = AnalysisReport()
+        report = AnalysisReportData()
         report.related_models = options['selectedTable']
-        report.options = options
+        tobe_saved_options = {
+            'db_name': options['selectedDB'],
+            'model_name': options['selectedTable'],
+            'chart_type': options['selectedChart'],
+            'chart_options': {
+                'xAxis': options['chartOptions']['selectedTypes'],
+                'yAxis': options['chartOptions']['selectedData'],
+            }
+        }
+        report.options = tobe_saved_options
         report.save()
         return True
