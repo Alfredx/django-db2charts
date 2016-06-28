@@ -249,8 +249,8 @@ def analysis_create_preview(request):
 
 def analysis_create_submit(request):
     chartOptions, = get_post_args(request, 'options')
-    AnalysisCreate().save_report(chartOptions)
-    return JsonCusResponse({'result':'success'}, safe=False)
+    report_id = AnalysisCreate().save_report(chartOptions)
+    return JsonCusResponse({'result':'success', 'report_id': report_id}, safe=False)
 
 
 def analysis_report(request):

@@ -7,6 +7,9 @@
 <script type="text/javascript" src="/static/db2charts/js/echarts_component.js"></script>
 
 <div id="app">
+    <div style="text-align:center;margin-top:20%;margin-left:auto;margin-right:auto;" v-show="showLoading">
+        <img src="/static/db2charts/image/loading.gif">
+    </div>
     <div id="chart" :style="chartStyle"></div>
     <table class="table" id="mtable" style="background-color:white;">
         <thead id="table_head">
@@ -14,11 +17,11 @@
         </thead>
         <tbody></tbody>
     </table>
-    <input>
 </div>
 
 <script type="text/javascript">
     function prepareTableHeader(tableCols) {
+        $('thead tr').empty();
         var dtColumns = [];
         for (var i in tableCols){
             var th = document.createElement('th');
@@ -36,9 +39,10 @@
             'data': data,
             'deferRender': true,
             'columns': dtColumns,
-            'scrollY': '400px',
+            'scrollY': '600px',
             'scrollX': '100%',
             'scrollCollapse': true,
+            'pageLength': '50',
             fixedColumns: {
                 leftColumns: 1
             }
@@ -48,6 +52,9 @@
     $(document).ready(function(){
         var App = new Vue({
             el: '#app',
+            data: {
+                showLoading: true,
+            },
             methods: {
 
             },
@@ -62,8 +69,10 @@
             },
             ready: function(){
                 initChart($('#chart')[0]);
+                var report_id = window.location.pathname.match(/\/\d\/$/)[0].replace(/\//g,'');
+                var vueInstance = this;
                 $.ajax({
-                    url: '/db2charts/api/analysis/report/?report_id=1',
+                    url: '/db2charts/api/analysis/report/?report_id='+report_id,
                     type: 'GET',
                     dataType: 'json',
                     success: function(result){
@@ -78,6 +87,7 @@
                             yAxis: result.data.yAxis,
                             count: result.count,
                         });
+                        vueInstance.showLoading = false;
                     }
                 });
             }

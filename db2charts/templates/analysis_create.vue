@@ -148,7 +148,8 @@
     <span class="{{$route.path=='/1'?'v-link-active':''}}">Step 1</span>&nbsp;&gt;&nbsp;
     <span class="{{$route.path=='/2'?'v-link-active':''}}">Step 2</span>&nbsp;&gt;&nbsp;
     <span class="{{$route.path=='/3'?'v-link-active':''}}">Step 3</span>&nbsp;&gt;&nbsp;
-    <span class="{{$route.path=='/4'?'v-link-active':''}}">Step 4</span>
+    <span class="{{$route.path=='/4'?'v-link-active':''}}">Step 4</span>&nbsp;&gt;&nbsp;
+    <span class="{{$route.path=='/5'?'v-link-active':''}}">Step 5</span>
   </p>
   <div class="router-view-container">
     <router-view></router-view>
@@ -156,12 +157,12 @@
   <div class="seperator"></div>
   <div class="footer">
     <button class="btn btn-primary btn-large" v-show="$route.path!='/1'" @click="onPrevClicked($route.path, $event)">上一步</button>
-    <button class="btn btn-primary btn-large" @click="onNextClicked($route.path, $event)">{{$route.path=='/4'?'完成':'下一步'}}</button>
+    <button class="btn btn-primary btn-large" @click="onNextClicked($route.path, $event)">{{$route.path=='/5'?'完成':'下一步'}}</button>
   </div>
 </div>
 
 <template id="pageChartOptions-template">
-<h3>Here you see step 4: select chart data</h3>
+<h3>Here you see step 5: select chart data</h3>
 <div class="body">
     <div class="leftTable">
         <div>table:</div>
@@ -195,6 +196,7 @@
 <script type="text/javascript">
 
     var userChartOptions = {
+        chartName: '',
         selectedDB: '',
         selectedTable: '',
         selectedChart: '',
@@ -225,15 +227,37 @@
     var router = new VueRouter();
 
     var pageEnterName = Vue.extend({
-        template: '<h3>The first step: Give your report a name</h3>\
-                   <div class=></div>'
+        template: '<h3>Here you see step 1: Give your chart a name</h3>\
+                    <div style="height:30%;"></div>\
+                    <div style="">\
+                        <input v-model="selectedDataSource.chartName" type="text" class="center-block form-control" placeholder="Your Chart Name" :style="nameInput" focus>\
+                    </div>',
+        data: function() {
+            return {
+                selectedDataSource: userChartOptions,
+            }
+        },
+        computed: {
+            nameInput: function(){
+                return {
+                    'line-height':'50px',
+                    'font-size':'50px',
+                    'height':'80px',
+                    'vertical-align':'bottom',
+                    'width':'80%',
+                }
+            }
+        },
+        ready: function(){
+            console.log('pageEnterName ready');
+        }
     })
 
     var pageSelectDB = function(resolve){
         resolve(loadingComponentDefinition);
         $.get('/db2charts/api/analysis/create/db/', function(res){
             resolve({
-                template: '<h3>Here you see step 1: select data source</h3>\
+                template: '<h3>Here you see step 2: select data source</h3>\
                             <div>\
                                 <div v-for="db in availableDBs" class="col-xs-12 col-sm-6 col-md-4 col-lg-4 data-source" @click="onDataSourceClicked(db, $event)">\
                                     <div :class="selected(db)"><p>{{db}}</p></div>\
@@ -259,6 +283,9 @@
                     }
                 },
                 ready: function(){
+                    if (!this.selectedDataSource.chartName){
+                        router.go('/1');
+                    }
                     console.log('pageSelectDB ready');
                 }
             });
@@ -269,7 +296,7 @@
         resolve(loadingComponentDefinition);
         $.get('/db2charts/api/analysis/create/table/?db='+userChartOptions.selectedDB, function(res){
             resolve({
-                template: '<h3>Here you see step 2: select table</h3>\
+                template: '<h3>Here you see step 3: select table</h3>\
                             <div>\
                                 <div v-for="item in availableTables" class="col-xs-12 col-sm-6 col-md-4 col-lg-4 data-table" @click="onDataTableClicked(item.model_name, $event)">\
                                     <div :class="selected(item.model_name)"><p>{{item.translated_name}}</p></div>\
@@ -295,8 +322,10 @@
                     }
                 },
                 ready: function(){
-                    if (!this.selectedDataSource.selectedDB){
+                    if (!this.selectedDataSource.chartName){
                         router.go('/1');
+                    } else if (!this.selectedDataSource.selectedDB){
+                        router.go('/2');
                     }
                     $.get('/db2charts/api/analysis/create/table/?db='+userChartOptions.selectedDB, (function(res){
                         this.availableTables = res;
@@ -308,7 +337,7 @@
     }
 
     var pageSelectChart = Vue.extend({
-        template: '<h3>Here you see step 3: select chart type</h3>\
+        template: '<h3>Here you see step 4: select chart type</h3>\
                     <div v-for="item in supportedCharts">\
                         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 data-chart" @click="onChartClicked(item.name, $event)">\
                             <div :class="selected(item.name)"><img :src="item.url"></div>\
@@ -339,10 +368,12 @@
             }
         },
         ready: function(){
-            if (!this.selectedDataSource.selectedDB){
+            if (!this.selectedDataSource.chartName){
                 router.go('/1');
-            } else if (!this.selectedDataSource.selectedTable) {
+            } else if (!this.selectedDataSource.selectedDB){
                 router.go('/2');
+            } else if (!this.selectedDataSource.selectedTable) {
+                router.go('/3');
             }
             console.log('pageSelectChart ready');
         }
@@ -432,12 +463,14 @@
                     }
                 },
                 ready: function(){
-                    if (!this.selectedDataSource.selectedDB){
+                    if (!this.selectedDataSource.chartName){
                         router.go('/1');
-                    } else if (!this.selectedDataSource.selectedTable) {
+                    } else if (!this.selectedDataSource.selectedDB){
                         router.go('/2');
-                    } else if (!this.selectedDataSource.selectedChart) {
+                    } else if (!this.selectedDataSource.selectedTable) {
                         router.go('/3');
+                    } else if (!this.selectedDataSource.selectedChart) {
+                        router.go('/4');
                     } else {
                         console.log('pageChartOptions ready');
                         chartView = initChart(document.getElementById('chart'));
@@ -468,7 +501,10 @@
                         router.go('/4');
                         break;
                     case '/4':
-                        alert('you have finished all 4 steps');
+                        router.go('/5');
+                        break;
+                    case '/5':
+                        alert('you have finished all 5 steps');
                         console.log(userChartOptions.selectedDataSource);
                         console.log(userChartOptions.selectedTable);
                         console.log(userChartOptions.selectedChart);
@@ -480,6 +516,9 @@
                             data: JSON.stringify({'options':userChartOptions}),
                             success: function(res){
                                 console.log(res);
+                                if (res.result == 'success'){
+                                    window.location.href = '/db2charts/analysis/report/'+res.report_id;
+                                }
                             }
                         })
                         break;
@@ -495,6 +534,9 @@
                         break;
                     case '/4':
                         router.go('/3');
+                        break;
+                    case '/5':
+                        router.go('/4');
                         break;
                 }
             }
@@ -515,15 +557,18 @@
             }
         },
         '/1': {
-            component: pageSelectDB
+            component: pageEnterName
         },
         '/2': {
-            component: pageSelectTable
+            component: pageSelectDB
         },
         '/3': {
-            component: pageSelectChart
+            component: pageSelectTable
         },
         '/4': {
+            component: pageSelectChart
+        },
+        '/5': {
             component: pageChartOptions
         }
     })
