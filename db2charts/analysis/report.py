@@ -20,6 +20,7 @@ class AnalysisReport(AnalysisBase):
         xAxis = self.options['chart_options']['xAxis']
         yAxis = self.options['chart_options']['yAxis']
         result = {
+            'chart_type': self.options['chart_type'],
             'legend': self.report.report_name,
             'serie_name': [],
             'data': {
@@ -55,6 +56,9 @@ class AnalysisReport(AnalysisBase):
             result['count'] += 1
         return result
 
+    def get_model_object_data(self, obj):
+        return {attname:getattr(obj, attname) for attname in obj._meta.get_all_field_names()}
+
     def get_table_data(self):
         # draw = table_params['draw']
         # start = table_params['start']
@@ -68,8 +72,10 @@ class AnalysisReport(AnalysisBase):
         #     'recordsTotal': models.objects.all().count()
         # }
         result = {
-            'table_data': self.model.objects.all(),
+            'table_data': [self.get_model_object_data(obj) for obj in self.model.objects.all()],
             'table_cols': self.get_columns(self.options['db_name'], self.options['model_name'].split('.')[-1]),
+            'table_options': self.options,
+            # 'translated_cols': 
         }
         return result
 
